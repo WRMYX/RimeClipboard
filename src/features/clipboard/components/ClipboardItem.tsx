@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ClipboardItemProps } from "../types";
-import { getConciseTime, getTagColor } from "../../../shared/lib/utils";
+import { formatSensitivePreview, getConciseTime, getTagColor } from "../../../shared/lib/utils";
 import HtmlContent from "../../../shared/components/HtmlContent";
 import { toTauriLocalImageSrc } from "../../../shared/lib/localImageSrc";
 import { getRichTextSnapshotDataUrl } from "../../../shared/lib/richTextSnapshot";
@@ -664,6 +664,10 @@ const ClipboardItem = ({
     const richTextSnapshotDisplayMaxHeight = compactMode ? 40 : 64;
     const richTextSnapshotRenderMaxHeight = compactMode ? 100 : 200;
     const canShowCompactPreview = compactMode && item.content_type !== "file";
+    const sensitivePreview = useMemo(
+        () => formatSensitivePreview(item.content, item.content_type),
+        [item.content, item.content_type]
+    );
     const richTextSnapshotSrc = useMemo(() => {
         if (!richTextSnapshotPreview) return null;
         if (item.content_type !== "rich_text" || !item.html_content) return null;
@@ -1347,7 +1351,7 @@ const ClipboardItem = ({
                         ? (
                             <div style={{ minHeight: '24px', opacity: 0.6, fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-mono)' }}>
                                 <span style={{ letterSpacing: '1px' }}>
-                                    {item.preview.substring(0, 3)}...
+                                    {sensitivePreview}
                                 </span>
                                 <span style={{ fontSize: '10px', opacity: 0.7 }}>
                                     ({item.content.length} {t('chars') || 'chars'})
