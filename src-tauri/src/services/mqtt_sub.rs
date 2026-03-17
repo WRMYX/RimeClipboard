@@ -338,7 +338,7 @@ pub fn start_mqtt_client(app: AppHandle) {
                                                     },
                                                     Err(_) => {}
                                                 }
-                                                crate::services::clipboard::process_new_entry(&app_handle_for_clipboard, crate::services::clipboard::ClipboardData::Text(payload_owned), Some("mqtt".to_string()));
+                                                crate::services::clipboard::process_new_entry(&app_handle_for_clipboard, crate::services::clipboard::ClipboardData::Text(payload_owned), Some("mqtt".to_string()), None);
                                             });
 
                                             let _ = app.emit("mqtt-message", &final_content);
