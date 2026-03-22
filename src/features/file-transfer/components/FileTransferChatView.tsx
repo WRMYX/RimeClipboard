@@ -31,6 +31,7 @@ const FileTransferChatView = ({
     localIp,
     actualPort
 }: FileTransferChatViewProps) => {
+    const composerMinHeight = 46;
     const [messages, setMessages] = useState<FileTransferMessage[]>([]);
     const [input, setInput] = useState("");
     const [appLogo, setAppLogo] = useState("");
@@ -364,7 +365,7 @@ const FileTransferChatView = ({
     // Adjust textarea height
     useEffect(() => {
         if (textareaRef.current) {
-            textareaRef.current.style.height = '40px';
+            textareaRef.current.style.height = `${composerMinHeight}px`;
             const scrollHeight = textareaRef.current.scrollHeight;
 
             // Check if text is overflowing (more content than fits in max height)
@@ -374,9 +375,9 @@ const FileTransferChatView = ({
                 setShowExpandBtn(false);
             }
 
-            textareaRef.current.style.height = Math.min(Math.max(40, scrollHeight), 120) + 'px';
+            textareaRef.current.style.height = Math.min(Math.max(composerMinHeight, scrollHeight), 120) + 'px';
         }
-    }, [input]);
+    }, [composerMinHeight, input]);
 
     const send = async () => {
         if (!input.trim()) return;
@@ -386,7 +387,7 @@ const FileTransferChatView = ({
             setShowFullScreen(false);
             fetchMessages();
             // Reset height
-            if (textareaRef.current) textareaRef.current.style.height = '40px';
+            if (textareaRef.current) textareaRef.current.style.height = `${composerMinHeight}px`;
         } catch (e) { }
     };
 
@@ -725,96 +726,82 @@ const FileTransferChatView = ({
             </div>
 
             <div className="wt-footer">
-                <button
-                    className="wt-btn"
-                    title="Send File"
-                    onClick={async () => {
-                        try {
-                            const selected = await open({
-                                multiple: true
-                            });
-
-                            if (selected) {
-                                const paths = Array.isArray(selected) ? selected : [selected];
-                                const tempMessages: FileTransferMessage[] = [];
-                                paths.forEach(path => {
-                                    const fileName = path.split(/[/\\]/).pop() || 'File';
-                                    const tempId = Date.now() + Math.random();
-                                    tempMessages.push({
-                                        id: tempId,
-                                        direction: 'out',
-                                        msg_type: 'file',
-                                        content: 'Preparing...',
-                                        timestamp: Date.now(),
-                                        _fileName: fileName,
-                                        _preparing: true
-                                    });
+                <div className="wt-composer">
+                    <button
+                        className="wt-btn wt-btn-icon"
+                        title="Send File"
+                        onClick={async () => {
+                            try {
+                                const selected = await open({
+                                    multiple: true
                                 });
 
-                                setMessages(prev => [...prev, ...tempMessages]);
-                                setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+                                if (selected) {
+                                    const paths = Array.isArray(selected) ? selected : [selected];
+                                    const tempMessages: FileTransferMessage[] = [];
+                                    paths.forEach(path => {
+                                        const fileName = path.split(/[/\\]/).pop() || 'File';
+                                        const tempId = Date.now() + Math.random();
+                                        tempMessages.push({
+                                            id: tempId,
+                                            direction: 'out',
+                                            msg_type: 'file',
+                                            content: 'Preparing...',
+                                            timestamp: Date.now(),
+                                            _fileName: fileName,
+                                            _preparing: true
+                                        });
+                                    });
 
-                                const sendPromises = paths.map(path =>
-                                    invoke("send_file_to_client", { filePath: path })
-                                );
-                                await Promise.all(sendPromises);
-                                setTimeout(fetchMessages, 300);
+                                    setMessages(prev => [...prev, ...tempMessages]);
+                                    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+
+                                    const sendPromises = paths.map(path =>
+                                        invoke("send_file_to_client", { filePath: path })
+                                    );
+                                    await Promise.all(sendPromises);
+                                    setTimeout(fetchMessages, 300);
+                                }
+                            } catch (e) {
+                                console.error(e);
                             }
-                        } catch (e) {
-                            console.error(e);
-                        }
-                    }}
-                >
-                    <Plus size={18} />
-                </button>
-
-                <div style={{ flex: 1, position: 'relative', display: 'flex', minWidth: 0 }}>
-                    <textarea
-                        ref={textareaRef}
-                        className="wt-input"
-                        value={input}
-                        onFocus={() => invoke("focus_clipboard_window").catch(console.error)}
-                        onChange={e => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        onPaste={handlePaste}
-                        placeholder={t ? (t('type_message') || "Type a message...") : "Type..."}
-                        rows={1}
-                        style={{
-                            resize: 'none',
-                            minHeight: '40px',
-                            maxHeight: '120px',
-                            paddingTop: '10px',
-                            paddingRight: '30px', /* space for expand btn */
-                            overflowY: 'hidden'
                         }}
-                    />
-                    {showExpandBtn && (
-                        <button
-                            className="wt-expand-btn"
-                            onClick={() => setShowFullScreen(true)}
-                            title="Full Screen Edit"
-                            style={{
-                                position: 'absolute',
-                                right: '6px',
-                                bottom: '6px',
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                opacity: 0.5,
-                                padding: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}
-                        >
-                            <Maximize2 size={14} />
-                        </button>
-                    )}
-                </div>
+                    >
+                        <Plus size={18} />
+                    </button>
 
-                <button onClick={send} className="wt-btn send">
-                    SEND
-                </button>
+                    <div className="wt-input-wrap">
+                        <textarea
+                            ref={textareaRef}
+                            className="wt-input"
+                            value={input}
+                            onFocus={() => invoke("focus_clipboard_window").catch(console.error)}
+                            onChange={e => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            onPaste={handlePaste}
+                            placeholder={t ? (t('type_message') || "Type a message...") : "Type..."}
+                            rows={1}
+                            style={{
+                                resize: 'none',
+                                maxHeight: '120px',
+                                overflowY: 'hidden'
+                            }}
+                        />
+                        {showExpandBtn && (
+                            <button
+                                className="wt-expand-btn"
+                                onClick={() => setShowFullScreen(true)}
+                                title="Full Screen Edit"
+                            >
+                                <Maximize2 size={14} />
+                            </button>
+                        )}
+                    </div>
+
+                    <button onClick={send} className="wt-btn send">
+                        SEND
+                    </button>
+                </div>
             </div>
 
             <AnimatePresence>
