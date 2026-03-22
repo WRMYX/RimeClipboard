@@ -13,7 +13,6 @@ import {
   X
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getTagColor } from "../../../shared/lib/utils";
 
 interface AppHeaderProps {
@@ -95,28 +94,9 @@ const AppHeader = ({
   };
 
   return (
-  <header
-    onMouseDown={(e) => {
-      if (e.button !== 0) {
-        return;
-      }
-
-      // Don't drag if clicking on interactive elements
-      const target = e.target as HTMLElement;
-      if (target.closest('button, input, select, textarea, [role="button"]')) {
-        return;
-      }
-
-      // Blur search input if focused
-      if (searchInputRef.current && document.activeElement === searchInputRef.current) {
-        searchInputRef.current.blur();
-      }
-      e.preventDefault();
-      getCurrentWindow().startDragging().catch(console.error);
-    }}
-  >
+  <header>
     <div className="header-top">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="header-leading">
         {(showSettings || showTagManager || showEmojiPanel) && (
           <button className="btn-icon" onClick={() => {
             if (chatMode) setChatMode(false);
@@ -127,15 +107,17 @@ const AppHeader = ({
             <ChevronLeft size={18} />
           </button>
         )}
-        <span className="header-title">
-          {showEmojiPanel
-            ? (t('emoji_panel') || '表情包')
-            : showTagManager && tagManagerEnabled
-              ? (t('tag_manager') || '标签管理')
-              : showSettings
-                ? t('settings')
-                : t('app_name')}
-        </span>
+        <div className="header-drag-region" data-tauri-drag-region>
+          <span className="header-title">
+            {showEmojiPanel
+              ? (t('emoji_panel') || '表情包')
+              : showTagManager && tagManagerEnabled
+                ? (t('tag_manager') || '标签管理')
+                : showSettings
+                  ? t('settings')
+                  : t('app_name')}
+          </span>
+        </div>
       </div>
       <div style={{ display: 'flex', gap: '4px' }}>
         {/* Pin Button - Always visible but single instance */}

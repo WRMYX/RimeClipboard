@@ -73,7 +73,7 @@
 .settings-group:not(.collapsed) .group-content {
   border-top: none;
   position: relative;
-  padding: 10px 12px 0 12px;
+  padding: 10px 12px 12px;
   background: transparent;
   animation: settings-group-reveal 0.18s ease-out;
 }
@@ -156,7 +156,6 @@
 
 .setting-item.no-border {
   border-bottom: none !important;
-  padding-bottom: 0;
 }
 
 .item-label-group {
