@@ -79,6 +79,8 @@ const insertHistoryItem = (list: ClipboardEntry[], item: ClipboardEntry) => {
 };
 
 const App = () => {
+  type FileTransferSourceView = "clipboard" | "settings" | "tag_manager" | "emoji_panel";
+
   const appState = useAppState();
   const {
     showSettings,
@@ -272,6 +274,8 @@ const App = () => {
 
   const effectiveShowEmojiPanel = showEmojiPanel && emojiPanelEnabled;
   const effectiveShowTagManager = showTagManager && tagManagerEnabled;
+  const [fileTransferSourceView, setFileTransferSourceView] =
+    useState<FileTransferSourceView>("clipboard");
 
   const debouncedSearch = useDebounce(search, 400);
   const searchInputRef = useInputFocus<HTMLInputElement>();
@@ -310,6 +314,71 @@ const App = () => {
   });
 
   const showScrollTopVisible = showScrollTop && scrollTopButtonEnabled;
+
+  const getCurrentSourceView = useCallback((): FileTransferSourceView => {
+    if (effectiveShowTagManager) return "tag_manager";
+    if (effectiveShowEmojiPanel) return "emoji_panel";
+    if (showSettings) return "settings";
+    return "clipboard";
+  }, [effectiveShowEmojiPanel, effectiveShowTagManager, showSettings]);
+
+  const restoreViewAfterChat = useCallback(
+    (sourceView: FileTransferSourceView) => {
+      setShowTagManager(sourceView === "tag_manager");
+      setShowEmojiPanel(sourceView === "emoji_panel");
+      setShowSettings(sourceView === "settings");
+    },
+    [setShowEmojiPanel, setShowSettings, setShowTagManager]
+  );
+
+  const openFileTransfer = useCallback(() => {
+    const sourceView = getCurrentSourceView();
+    setFileTransferSourceView(sourceView);
+    setShowTagManager(false);
+    setShowEmojiPanel(false);
+    setShowSettings(true);
+    setChatMode(true);
+  }, [getCurrentSourceView, setChatMode, setShowEmojiPanel, setShowSettings, setShowTagManager]);
+
+  const closeFileTransfer = useCallback(() => {
+    setChatMode(false);
+    restoreViewAfterChat(fileTransferSourceView);
+  }, [fileTransferSourceView, restoreViewAfterChat, setChatMode]);
+
+  const handleHeaderBack = useCallback(() => {
+    if (chatMode) {
+      closeFileTransfer();
+      return;
+    }
+    if (effectiveShowEmojiPanel) {
+      setShowEmojiPanel(false);
+      return;
+    }
+    if (effectiveShowTagManager) {
+      setShowTagManager(false);
+      return;
+    }
+    if (showSettings) {
+      setShowSettings(false);
+    }
+  }, [
+    chatMode,
+    closeFileTransfer,
+    effectiveShowEmojiPanel,
+    effectiveShowTagManager,
+    setShowEmojiPanel,
+    setShowSettings,
+    setShowTagManager,
+    showSettings
+  ]);
+
+  const handleToggleHeaderChat = useCallback(() => {
+    if (chatMode) {
+      closeFileTransfer();
+      return;
+    }
+    openFileTransfer();
+  }, [chatMode, closeFileTransfer, openFileTransfer]);
 
   const handleListScroll = useCallback((offset: number) => {
     handleSearchScroll(offset);
@@ -787,7 +856,7 @@ const App = () => {
     fetchEffectiveTransferPath,
     handleResetSettings,
     toggleGroup,
-    onOpenChat: () => setChatMode(true),
+    onOpenChat: openFileTransfer,
     state: appState
   });
 
@@ -826,6 +895,8 @@ const App = () => {
         colorMode={colorMode}
         typeFilter={typeFilter}
         setTypeFilter={setTypeFilter}
+        onBack={handleHeaderBack}
+        onToggleChat={handleToggleHeaderChat}
       />
 
       <AnnouncementSystem

@@ -13,7 +13,7 @@ import {
   X
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
-import { getTagColor } from "../../../shared/lib/utils";
+import { getTagColor, getTagTextColor } from "../../../shared/lib/utils";
 
 interface AppHeaderProps {
   t: (key: string) => string;
@@ -46,6 +46,8 @@ interface AppHeaderProps {
   colorMode: string;
   typeFilter: string | null;
   setTypeFilter: (val: string | null) => void;
+  onBack: () => void;
+  onToggleChat: () => void;
 }
 
 const AppHeader = ({
@@ -78,7 +80,9 @@ const AppHeader = ({
   theme,
   colorMode,
   typeFilter,
-  setTypeFilter
+  setTypeFilter,
+  onBack,
+  onToggleChat
 }: AppHeaderProps) => {
   const getTypeName = (type: string) => {
     switch (type) {
@@ -94,16 +98,11 @@ const AppHeader = ({
   };
 
   return (
-  <header>
+  <header className="window-drag-region">
     <div className="header-top">
       <div className="header-leading">
         {(showSettings || showTagManager || showEmojiPanel) && (
-          <button className="btn-icon" onClick={() => {
-            if (chatMode) setChatMode(false);
-            else if (showEmojiPanel) setShowEmojiPanel(false);
-            else if (showTagManager) setShowTagManager(false);
-            else setShowSettings(false);
-          }}>
+          <button className="btn-icon window-no-drag" onClick={onBack}>
             <ChevronLeft size={18} />
           </button>
         )}
@@ -119,7 +118,7 @@ const AppHeader = ({
           </span>
         </div>
       </div>
-      <div style={{ display: 'flex', gap: '4px' }}>
+      <div className="header-actions window-no-drag">
         {/* Pin Button - Always visible but single instance */}
         <button
           className={`btn-icon ${isWindowPinned ? 'active' : ''}`}
@@ -155,22 +154,11 @@ const AppHeader = ({
         )}
         {fileServerEnabled && (
           <button
-            className={`btn-icon ${chatMode && showSettings ? 'active' : ''}`}
+            className={`btn-icon header-chat-btn ${chatMode && showSettings ? 'active' : ''}`}
             title="Chat"
-            onClick={() => {
-              if (showTagManager) setShowTagManager(false);
-              if (!showSettings) {
-                setShowSettings(true);
-                setChatMode(true);
-              } else {
-                setChatMode(!chatMode);
-              }
-            }}
+            onClick={onToggleChat}
           >
-            <div style={{ position: 'relative' }}>
-              <MessageSquare size={16} />
-              {/* Keep the indicator/badge if needed, though not present in original code */}
-            </div>
+            <MessageSquare size={16} />
           </button>
         )}
         <button className="btn-icon" title={t('hide')} onClick={async () => {
@@ -195,7 +183,7 @@ const AppHeader = ({
             transition={{ duration: 0.2, ease: "circOut" }}
             style={{ flexShrink: 0 }}
           >
-            <div className="search-container">
+            <div className="search-container window-no-drag">
               <div style={{ position: 'relative' }}>
                 <Search size={14} className="search-icon" />
                 <input
@@ -234,21 +222,24 @@ const AppHeader = ({
                   <div className="tags-dropdown">
                     <div className="tags-label">{t('tags') || "Tags"}</div>
                     <div className="tags-list">
-                      {allTags.map(tag => (
-                        <span
-                          className="tag-chip"
-                          key={tag}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setSearch("tag:" + tag);
-                            setShowTagFilter(false);
-                          }}
-                          data-tag={tag}
-                          style={{ background: getTagColor(tag, theme) }}
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {allTags.map(tag => {
+                        const tagBackground = getTagColor(tag, theme);
+                        return (
+                          <span
+                            className="tag-chip"
+                            key={tag}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setSearch("tag:" + tag);
+                              setShowTagFilter(false);
+                            }}
+                            data-tag={tag}
+                            style={{ background: tagBackground, color: getTagTextColor(tagBackground) }}
+                          >
+                            {tag}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

@@ -398,6 +398,7 @@ pub fn set_data_path(app_handle: AppHandle, new_path: String) -> AppResult<()> {
     if new_db_path.exists() {
         rewrite_attachment_paths_in_db(&new_db_path, &old_path_buf, new_data_path)?;
         rewrite_emoji_favorites_in_db(&new_db_path, &old_path_buf, new_data_path)?;
+        rewrite_custom_background_in_db(&new_db_path, &old_path_buf, new_data_path)?;
     }
 
     // 2. Save new path to a persistent config file
@@ -533,6 +534,61 @@ fn rewrite_emoji_favorites_in_db(
         conn.execute(
             "UPDATE settings SET value = ?1 WHERE key = 'app.emoji_favorites'",
             params![serialized],
+        )
+        .map_err(AppError::from)?;
+    }
+
+    Ok(())
+}
+
+fn rewrite_custom_background_in_db(
+    db_path: &std::path::Path,
+    old_base: &std::path::Path,
+    new_base: &std::path::Path,
+) -> AppResult<()> {
+    let conn = Connection::open(db_path).map_err(AppError::from)?;
+    let value: Option<String> = conn
+        .query_row(
+            "SELECT value FROM settings WHERE key = 'app.custom_background'",
+            [],
+            |row| row.get(0),
+        )
+        .optional()
+        .map_err(AppError::from)?;
+
+    let Some(raw_path) = value else { return Ok(()); };
+    let trimmed = raw_path.trim();
+    if trimmed.is_empty() {
+        return Ok(());
+    }
+
+    let old_path = std::path::PathBuf::from(trimmed);
+    if !old_path.starts_with(old_base) {
+        return Ok(());
+    }
+
+    let Ok(relative) = old_path.strip_prefix(old_base) else {
+        return Ok(());
+    };
+    let new_path = new_base.join(relative);
+
+    if old_path != new_path && old_path.exists() {
+        if let Some(parent) = new_path.parent() {
+            std::fs::create_dir_all(parent).map_err(AppError::from)?;
+        }
+        if !new_path.exists() {
+            if let Err(_) = std::fs::rename(&old_path, &new_path) {
+                std::fs::copy(&old_path, &new_path).map_err(AppError::from)?;
+                let _ = std::fs::remove_file(&old_path);
+            }
+        }
+    }
+
+    let new_value = new_path.to_string_lossy().to_string();
+    if new_value != raw_path {
+        conn.execute(
+            "UPDATE settings SET value = ?1 WHERE key = 'app.custom_background'",
+            params![new_value],
         )
         .map_err(AppError::from)?;
     }

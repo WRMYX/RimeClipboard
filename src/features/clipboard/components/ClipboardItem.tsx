@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ClipboardItemProps } from "../types";
-import { getConciseTime, getTagColor } from "../../../shared/lib/utils";
+import { getConciseTime, getTagColor, getTagTextColor } from "../../../shared/lib/utils";
 import HtmlContent from "../../../shared/components/HtmlContent";
 import { toTauriLocalImageSrc } from "../../../shared/lib/localImageSrc";
 import { getRichTextSnapshotDataUrl } from "../../../shared/lib/richTextSnapshot";
@@ -1445,31 +1445,36 @@ const ClipboardItem = ({
                         gap: '4px',
                         paddingTop: '0'
                     }}>
-                    {item.tags?.map(tag => (
-                        <span
-                            key={tag}
-                            className="tag-chip"
-                            style={{
-                                background: tagColors?.[tag] || getTagColor(tag, theme),
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                            }}
-                        >
-                            {tag}
-                            {isEditingTags && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onTagDelete(tag);
-                                    }}
-                                    style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex' }}
-                                >
-                                    <X size={8} />
-                                </button>
-                            )}
-                        </span>
-                    ))}
+                    {item.tags?.map(tag => {
+                        const tagBackground = tagColors?.[tag] || getTagColor(tag, theme);
+                        const tagTextColor = getTagTextColor(tagBackground);
+                        return (
+                            <span
+                                key={tag}
+                                className="tag-chip"
+                                style={{
+                                    background: tagBackground,
+                                    color: tagTextColor,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                }}
+                            >
+                                {tag}
+                                {isEditingTags && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onTagDelete(tag);
+                                        }}
+                                        style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', opacity: 0.72, cursor: 'pointer', display: 'flex' }}
+                                    >
+                                        <X size={8} />
+                                    </button>
+                                )}
+                            </span>
+                        );
+                    })}
 
                     {isEditingTags && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>

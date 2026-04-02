@@ -310,20 +310,34 @@
   gap: 8px;
 }
 
-.theme-choice-btn {
-  min-height: 40px;
+.settings-inline-choice-row {
+  display: flex;
+  gap: 8px;
   width: 100%;
-  padding: 8px 10px;
+}
+
+.settings-inline-choice-btn {
+  flex: 1;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.theme-choice-btn {
+  min-height: 36px;
+  width: 100%;
+  padding: 0 12px;
   align-items: center;
   justify-content: center;
-  text-align: left;
+  text-align: center;
 }
 
 .theme-choice-title {
   font-size: 12px;
   font-weight: 700;
-  line-height: 1.15;
-  white-space: normal;
+  line-height: 1;
+  white-space: nowrap;
   text-align: center;
 }
 

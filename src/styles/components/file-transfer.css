@@ -996,9 +996,9 @@ body.theme-mica .wt-header{
 .wt-expand-btn{
   position: absolute;
   right: 8px;
-  bottom: calc((var(--wt-control-height) - 28px) / 2);
-  width: 28px;
-  height: 28px;
+  bottom: calc((var(--wt-control-height) - 24px) / 2);
+  width: 24px;
+  height: 24px;
   padding: 0;
   background: transparent;
   border: none;
@@ -1013,6 +1013,29 @@ body.theme-mica .wt-header{
 
 .wt-expand-btn:hover{
   opacity: 1;
+}
+
+.wt-overlay-icon-btn{
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.wt-overlay-icon-btn:hover{
+  background: var(--wt-expand-hover-background);
+}
+
+.wt-overlay-icon-btn:active{
+  transform: translateY(1px);
 }
 
 body.theme-acrylic .wt-composer,

@@ -860,14 +860,10 @@ const FileTransferChatView = ({
                             <div style={{ fontWeight: 900, fontSize: '14px' }}>FULL SCREEN EDIT</div>
                             <button
                                 onClick={() => setShowFullScreen(false)}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    color: 'var(--text-primary)'
-                                }}
+                                className="wt-overlay-icon-btn"
+                                title="Minimize"
                             >
-                                <Minimize2 size={20} />
+                                <Minimize2 size={16} />
                             </button>
                         </div>
 

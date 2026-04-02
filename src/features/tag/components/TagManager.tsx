@@ -19,6 +19,7 @@ interface TagInfo {
 }
 
 export default function TagManager({ t, theme }: TagManagerProps) {
+    const TAG_MANAGER_VIEW_MODE_KEY = "tiez_tag_manager_view_mode";
     const [tags, setTags] = useState<TagInfo[]>([]);
     const [tagSearch, setTagSearch] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -27,7 +28,14 @@ export default function TagManager({ t, theme }: TagManagerProps) {
     const [editingTag, setEditingTag] = useState<string | null>(null);
     const [newTagName, setNewTagName] = useState('');
     const [loading, setLoading] = useState(false);
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>(() => {
+        try {
+            const saved = window.localStorage.getItem(TAG_MANAGER_VIEW_MODE_KEY);
+            return saved === 'list' ? 'list' : 'grid';
+        } catch {
+            return 'grid';
+        }
+    });
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState<{ show: boolean, tagName: string | null }>({ show: false, tagName: null });
     const [itemDeleteConfirmation, setItemDeleteConfirmation] = useState<{ show: boolean, id: number | null }>({ show: false, id: null });
@@ -39,6 +47,14 @@ export default function TagManager({ t, theme }: TagManagerProps) {
 
     const selectedTagRef = useRef<string | null>(null);
     useEffect(() => { selectedTagRef.current = selectedTag; }, [selectedTag]);
+
+    useEffect(() => {
+        try {
+            window.localStorage.setItem(TAG_MANAGER_VIEW_MODE_KEY, viewMode);
+        } catch {
+            // Ignore storage write failures and keep UI functional.
+        }
+    }, [viewMode]);
 
     useEffect(() => {
         let unlisteners: (() => void)[] = [];
