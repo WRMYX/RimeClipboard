@@ -99,6 +99,7 @@ fn main() {
             app::commands::restart_mqtt_client,
             app::commands::get_cloud_sync_status,
             app::commands::restart_cloud_sync_client,
+            app::commands::request_cloud_sync,
             app::commands::cloud_sync_now,
             app::commands::set_sound_enabled,
             app::commands::set_file_transfer_auto_open,

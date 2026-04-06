@@ -7,7 +7,7 @@ use crate::infrastructure::repository::tag_repo::TagRepository;
 use crate::services::clipboard::{
     build_entry_preview, derive_rich_text_content, truncate_html_for_preview,
 };
-use tauri::State;
+use tauri::{AppHandle, Emitter, State};
 
 fn normalize_rich_text_item_content(item: &mut ClipboardEntry) {
     if item.content_type != "rich_text" {
@@ -169,6 +169,7 @@ pub fn search_clipboard_history(
 
 #[tauri::command]
 pub fn delete_clipboard_entry(
+    app_handle: AppHandle,
     state: State<'_, DbState>,
     session: State<'_, SessionHistory>,
     app_data: State<'_, AppDataDir>,
@@ -183,11 +184,14 @@ pub fn delete_clipboard_entry(
         let data_dir = app_data.0.lock().unwrap();
         state.repo.delete(id, Some(&data_dir))?;
     }
+    let _ = app_handle.emit("clipboard-changed", ());
+    crate::services::cloud_sync::request_cloud_sync(app_handle);
     Ok(())
 }
 
 #[tauri::command]
 pub fn clear_clipboard_history(
+    app_handle: AppHandle,
     state: State<'_, DbState>,
     session: State<'_, SessionHistory>,
     app_data: State<'_, AppDataDir>,
@@ -197,7 +201,10 @@ pub fn clear_clipboard_history(
         session_items.retain(|item| item.is_pinned || !item.tags.is_empty());
     }
     let data_dir = app_data.0.lock().unwrap();
-    state.repo.clear(Some(&data_dir)).map_err(AppError::from)
+    state.repo.clear(Some(&data_dir)).map_err(AppError::from)?;
+    let _ = app_handle.emit("clipboard-changed", ());
+    crate::services::cloud_sync::request_cloud_sync(app_handle);
+    Ok(())
 }
 
 #[tauri::command]
@@ -333,11 +340,14 @@ pub fn get_clipboard_content(
 }
 
 #[tauri::command]
-pub fn update_pinned_order(state: State<'_, DbState>, orders: Vec<(i64, i64)>) -> AppResult<()> {
+pub fn update_pinned_order(app_handle: AppHandle, state: State<'_, DbState>, orders: Vec<(i64, i64)>) -> AppResult<()> {
     state
         .repo
         .update_pinned_order(orders)
-        .map_err(AppError::from)
+        .map_err(AppError::from)?;
+    let _ = app_handle.emit("clipboard-changed", ());
+    crate::services::cloud_sync::request_cloud_sync(app_handle);
+    Ok(())
 }
 
 #[tauri::command]

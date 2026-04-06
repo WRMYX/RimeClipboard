@@ -453,6 +453,11 @@ pub fn restart_cloud_sync_client(app_handle: AppHandle) {
 }
 
 #[tauri::command]
+pub fn request_cloud_sync(app_handle: AppHandle) {
+    crate::services::cloud_sync::request_cloud_sync(app_handle);
+}
+
+#[tauri::command]
 pub async fn cloud_sync_now(
     app_handle: AppHandle,
 ) -> AppResult<crate::services::cloud_sync::CloudSyncStatus> {

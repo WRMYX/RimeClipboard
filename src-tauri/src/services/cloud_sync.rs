@@ -11,7 +11,7 @@ use regex::Regex;
 use reqwest::{Client, Method, RequestBuilder, Response, StatusCode};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::{Mutex, OnceLock};
@@ -54,6 +54,7 @@ static CLOUD_SYNC_RUN_ACTIVE: AtomicBool = AtomicBool::new(false);
 static CLOUD_SYNC_REQUESTED: AtomicBool = AtomicBool::new(false);
 static CLOUD_SYNC_LAST_SYNC_AT: AtomicI64 = AtomicI64::new(0);
 static LAST_PUSHED_EMOJI_HASH: AtomicI64 = AtomicI64::new(0);
+static WEBDAV_KNOWN_DIRS: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CloudSyncProvider {
@@ -1851,6 +1852,14 @@ async fn mkcol_if_needed(
     cfg: &CloudSyncConfig,
     relative_path: &str,
 ) -> AppResult<()> {
+    let cache_key = format!("{}:{}", cfg.webdav_url, relative_path);
+    {
+        let cache = WEBDAV_KNOWN_DIRS.get_or_init(|| Mutex::new(HashSet::new()));
+        if cache.lock().unwrap().contains(&cache_key) {
+            return Ok(());
+        }
+    }
+
     let method = Method::from_bytes(b"MKCOL")
         .map_err(|e| AppError::Internal(format!("invalid MKCOL method: {}", e)))?;
     let url = webdav_collection_url_for(cfg, relative_path);
@@ -1860,12 +1869,16 @@ async fn mkcol_if_needed(
 
     let code = resp.status().as_u16();
     if resp.status().is_success() {
+        let cache = WEBDAV_KNOWN_DIRS.get_or_init(|| Mutex::new(HashSet::new()));
+        cache.lock().unwrap().insert(cache_key);
         return Ok(());
     }
 
     if matches!(code, 301 | 302 | 307 | 308 | 405)
         && webdav_collection_exists(client, cfg, relative_path).await?
     {
+        let cache = WEBDAV_KNOWN_DIRS.get_or_init(|| Mutex::new(HashSet::new()));
+        cache.lock().unwrap().insert(cache_key);
         return Ok(());
     }
 
@@ -3124,6 +3137,17 @@ pub fn start_cloud_sync_client(app: AppHandle) {
 }
 
 pub fn restart_cloud_sync_client(app: AppHandle) {
+    start_cloud_sync_client(app);
+    CLOUD_SYNC_REQUESTED.store(true, Ordering::Relaxed);
+}
+
+pub fn request_cloud_sync(app: AppHandle) {
+    let Some(cfg) = get_config(&app) else {
+        return;
+    };
+    if !cfg.enabled || !cfg.auto_sync || !cloud_sync_target_ready(&cfg) {
+        return;
+    }
     start_cloud_sync_client(app);
     CLOUD_SYNC_REQUESTED.store(true, Ordering::Relaxed);
 }
