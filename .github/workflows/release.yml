@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'windows-latest' # 我们目前只重点发 Windows 版
+          - platform: 'windows-latest' 
             args: ''
 
     runs-on: ${{ matrix.platform }}
@@ -29,11 +29,10 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # 我们只需要 Windows 的 x86_64 目标
           targets: x86_64-pc-windows-msvc
 
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # 备用，虽然你目前只用 Windows
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libnm-dev libayatana-appindicator3-dev librsvg2-dev patchelf
@@ -47,9 +46,9 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: v__VERSION__ # 开发时会自动替换版本号
+          tagName: v__VERSION__ 
           releaseName: "TieZ v__VERSION__"
-          releaseBody: "感谢使用 TieZ。本次更新带来了全新的主题 UI 和自动更新机制。"
+          releaseBody: "建议更新新版本"
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
