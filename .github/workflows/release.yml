@@ -1,8 +1,8 @@
-name: Release
+name: Release macOS
 on:
   push:
     tags:
-      - 'v*'
+      - 'mac-v*'
 
 jobs:
   release:
@@ -57,8 +57,8 @@ jobs:
           VITE_TIEZ_UPDATE_ENDPOINT: ${{ vars.VITE_TIEZ_UPDATE_ENDPOINT }}
           TIEZ_UPDATER_PUBLIC_KEY: ${{ vars.TIEZ_UPDATER_PUBLIC_KEY }}
         with:
-          tagName: v__VERSION__ # tauri-action 会自动替换 __VERSION__
-          releaseName: 'TieZ v__VERSION__'
+          tagName: mac-v__VERSION__ # tauri-action 会自动替换 __VERSION__
+          releaseName: 'TieZ macOS v__VERSION__'
           releaseBody: 'See the assets to download and install this version.'
           releaseDraft: true
           prerelease: false
