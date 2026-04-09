@@ -515,7 +515,7 @@ fn setup_main_window(app: &App, s: &StartupSettings) {
 fn start_services(app: &App, s: &StartupSettings, app_handle: AppHandle) {
     crate::infrastructure::macos_api::window_tracker::start_window_tracking(app_handle.clone());
     crate::services::clipboard::start_clipboard_monitor(app_handle.clone());
-    // crate::services::mqtt_sub::start_mqtt_client(app_handle.clone());
+    crate::services::mqtt_sub::start_mqtt_client(app_handle.clone());
     crate::services::cloud_sync::start_cloud_sync_client(app_handle.clone());
     start_edge_docking_monitor(app_handle.clone());
 

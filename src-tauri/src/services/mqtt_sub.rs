@@ -216,7 +216,7 @@ pub fn start_mqtt_client(app: AppHandle) {
 
     tauri::async_runtime::spawn(async move {
         let _guard = MqttTaskGuard;
-        const MAX_RECONNECT_ATTEMPTS: u32 = 3;
+        // Loop forever if enabled, using exponential backoff inside.
 
         loop {
             let config = get_mqtt_config(&app);
@@ -417,16 +417,9 @@ pub fn start_mqtt_client(app: AppHandle) {
                     MQTT_CONNECTED.store(false, Ordering::Relaxed);
                     let _ = app.emit("mqtt-status", "disconnected");
 
-                    if current_attempts >= MAX_RECONNECT_ATTEMPTS {
-                        error!(
-                            ">>> [MQTT] Max attempts reached ({}/{}). Task pausing.",
-                            current_attempts, MAX_RECONNECT_ATTEMPTS
-                        );
-                        break;
-                    }
-
-                    let wait_secs = 5 * u64::pow(2, (current_attempts as u32).saturating_sub(1));
-                    info!(">>> [MQTT] Retrying in {}s...", wait_secs);
+                    // Cap backoff at 60 seconds
+                    let wait_secs = (5 * u64::pow(2, (current_attempts as u32).saturating_sub(1))).min(60);
+                    info!(">>> [MQTT] Retrying in {}s (Attempt {})...", wait_secs, current_attempts);
                     sleep(Duration::from_secs(wait_secs)).await;
                     continue;
                 }
@@ -551,10 +544,6 @@ pub fn start_mqtt_client(app: AppHandle) {
                 }
             }
 
-            let current_attempts = MQTT_RECONNECT_ATTEMPTS.load(Ordering::Relaxed);
-            if current_attempts >= MAX_RECONNECT_ATTEMPTS {
-                break;
-            }
             sleep(Duration::from_secs(5)).await;
         }
     });

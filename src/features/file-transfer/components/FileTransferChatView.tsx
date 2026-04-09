@@ -15,6 +15,7 @@ import {
     Link as LinkIcon,
     Clipboard,
     Video,
+    Send,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QRCodeCanvas } from "qrcode.react";
@@ -31,7 +32,7 @@ const FileTransferChatView = ({
     localIp,
     actualPort
 }: FileTransferChatViewProps) => {
-    const composerMinHeight = 46;
+    const composerMinHeight = 32;
     const [messages, setMessages] = useState<FileTransferMessage[]>([]);
     const [input, setInput] = useState("");
     const [appLogo, setAppLogo] = useState("");
@@ -619,30 +620,11 @@ const FileTransferChatView = ({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'rgba(0,0,0,0.6)',
-                            backdropFilter: 'blur(4px)',
-                            zIndex: 99999, // Ensure it's on top of everything
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            pointerEvents: 'none' // Allow drop to pass through? No, wait... Tauri handles drop globally. Overlay is just visual.
-                        }}
+                        className="wt-drag-overlay"
                     >
-                        <div style={{
-                            border: '4px dashed rgba(255,255,255,0.8)',
-                            borderRadius: '16px',
-                            padding: '40px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '16px',
-                            color: '#fff'
-                        }}>
-                            <Folder size={64} color="#fff" strokeWidth={1.5} />
-                            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>Drop to Send</div>
+                        <div className="wt-drag-drop-zone">
+                            <Folder size={64} strokeWidth={1.5} />
+                            <div className="wt-drag-drop-text">Drop to Send</div>
                         </div>
                     </motion.div>
                 )}
@@ -687,31 +669,24 @@ const FileTransferChatView = ({
                             <div
                                 className="wt-avatar"
                                 style={{
-                                    overflow: 'hidden',
                                     background: avatar.isImg ? 'transparent' : avatar.color,
-                                    color: '#fff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: 'bold',
-                                    fontSize: '14px'
                                 }}
                             >
                                 {avatar.isImg ? (
-                                    <img src={avatar.content} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" alt="Avatar" />
+                                    <img src={avatar.content} loading="lazy" alt="Avatar" />
                                 ) : (
                                     avatar.initial
                                 )}
                             </div>
                             <div className="wt-bubble">
                                 {m.sender_name && m.direction === 'in' && (
-                                    <div style={{ fontSize: '10px', opacity: 0.7, marginBottom: '4px', fontWeight: 'bold' }}>
+                                    <div className="wt-sender-name">
                                         {m.sender_name}
                                     </div>
                                 )}
                                 {m.msg_type === 'text' && (
                                     <div
-                                        style={{ whiteSpace: 'pre-wrap', userSelect: 'text' }}
+                                        className="wt-text-content"
                                         onContextMenu={(e) => {
                                             e.preventDefault();
                                             setContextMenu({
@@ -769,7 +744,7 @@ const FileTransferChatView = ({
                                                 });
                                             }}
                                         />
-                                        <div style={{ fontSize: '11px', opacity: 0.7, display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                                        <div className="wt-media-footer">
                                             <ImageIcon size={12} />
                                             <span>Image</span>
                                         </div>
@@ -781,7 +756,6 @@ const FileTransferChatView = ({
                                             src={getMessageMediaSrc(m)}
                                             className="wt-video-preview"
                                             controls
-                                            style={{ maxWidth: '100%', borderRadius: '8px', maxHeight: '300px' }}
                                             onContextMenu={(e) => {
                                                 e.preventDefault();
                                                 setContextMenu({
@@ -846,7 +820,7 @@ const FileTransferChatView = ({
                                                                 : "File Transfer"))}
                                                 </div>
                                                 {!m._preparing && (
-                                                    <div style={{ fontSize: '10px', opacity: 0.7 }}>
+                                                    <div className="wt-file-status">
                                                         {m.direction === 'in' ? 'Saved - Click to open' : 'Ready for download'}
                                                     </div>
                                                 )}
@@ -875,7 +849,7 @@ const FileTransferChatView = ({
             <div className="wt-footer">
                 <div className="wt-composer">
                     <button
-                        className="wt-btn wt-btn-icon"
+                        className="wt-btn-icon"
                         title="Send File"
                         onClick={async () => {
                             try {
@@ -911,25 +885,21 @@ const FileTransferChatView = ({
                             onPaste={handlePaste}
                             placeholder={t ? (t('type_message') || "Type a message...") : "Type..."}
                             rows={1}
-                            style={{
-                                resize: 'none',
-                                maxHeight: '120px',
-                                overflowY: 'hidden'
-                            }}
                         />
+                    </div>
                         {showExpandBtn && (
                             <button
-                                className="wt-expand-btn"
+                                className="wt-btn-icon"
                                 onClick={() => setShowFullScreen(true)}
                                 title="Full Screen Edit"
+                                style={{ borderRadius: '8px' }}
                             >
-                                <Maximize2 size={14} />
+                                <Maximize2 size={16} />
                             </button>
                         )}
-                    </div>
 
                     <button onClick={send} className="wt-btn send">
-                        SEND
+                        <Send size={18} />
                     </button>
                 </div>
             </div>
@@ -941,19 +911,9 @@ const FileTransferChatView = ({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="wt-fullscreen-editor"
-                        style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'var(--bg-body)',
-                            zIndex: 2000,
-                            padding: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '16px'
-                        }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontWeight: 900, fontSize: '14px' }}>FULL SCREEN EDIT</div>
+                        <div className="wt-fullscreen-header">
+                            <div className="wt-fullscreen-title">FULL SCREEN EDIT</div>
                             <button
                                 onClick={() => setShowFullScreen(false)}
                                 className="wt-overlay-icon-btn"
@@ -968,34 +928,20 @@ const FileTransferChatView = ({
                             onFocus={() => invoke("focus_clipboard_window").catch(console.error)}
                             onChange={e => setInput(e.target.value)}
                             placeholder="Type your message..."
-                            style={{
-                                flex: 1,
-                                width: '100%',
-                                background: 'var(--bg-input)',
-                                color: 'var(--text-primary)',
-                                border: '2px solid var(--border-dark)',
-                                padding: '16px',
-                                fontSize: '16px',
-                                fontFamily: 'var(--font-mono)',
-                                resize: 'none',
-                                outline: 'none',
-                                borderRadius: 'var(--radius-panel)'
-                            }}
+                            className="wt-fullscreen-textarea"
                             onPaste={handlePaste}
                         />
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                        <div className="wt-fullscreen-footer">
                             <button
                                 onClick={() => setShowFullScreen(false)}
                                 className="wt-btn"
-                                style={{ width: 'auto', padding: '0 20px', fontWeight: 'bold' }}
                             >
                                 CANCEL
                             </button>
                             <button
                                 onClick={send}
                                 className="wt-btn send"
-                                style={{ width: 'auto', padding: '0 24px' }}
                             >
                                 SEND
                             </button>

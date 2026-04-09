@@ -41,6 +41,7 @@
   align-items: center !important;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
+  border-radius: inherit; /* Inherit rounded corners from .settings-group */
 }
 
 .settings-group.collapsed {
@@ -61,8 +62,10 @@
   cursor: pointer;
 }
 
-.settings-group:not(.collapsed) .group-header {
+.settings-group:not(.collapsed) .group-header:not(:last-child) {
   border-bottom: none;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 .settings-group h3 {
@@ -92,6 +95,8 @@
   padding: 10px 12px 12px;
   background: transparent;
   animation: settings-group-reveal 0.18s ease-out;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 
 .settings-group:not(.collapsed) .group-content::before {
@@ -278,6 +283,7 @@
   width: 100%;
   border: none;
   box-shadow: none !important;
+  border-radius: inherit; /* Inherit from .settings-group */
 }
 
 .advanced-settings-page {
