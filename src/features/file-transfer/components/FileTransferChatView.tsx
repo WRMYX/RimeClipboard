@@ -15,6 +15,7 @@ import {
     Link as LinkIcon,
     Clipboard,
     Video,
+    Send,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { QRCodeCanvas } from "qrcode.react";
@@ -815,25 +816,21 @@ const FileTransferChatView = ({
                             onPaste={handlePaste}
                             placeholder={t ? (t('type_message') || "Type a message...") : "Type..."}
                             rows={1}
-                            style={{
-                                resize: 'none',
-                                maxHeight: '120px',
-                                overflowY: 'hidden'
-                            }}
                         />
                         {showExpandBtn && (
                             <button
-                                className="wt-expand-btn"
+                                className="wt-btn-icon"
                                 onClick={() => setShowFullScreen(true)}
                                 title="Full Screen Edit"
+                                style={{ borderRadius: '8px' }}
                             >
-                                <Maximize2 size={14} />
+                                <Maximize2 size={16} />
                             </button>
                         )}
                     </div>
 
                     <button onClick={send} className="wt-btn send">
-                        SEND
+                        <Send size={18} />
                     </button>
                 </div>
             </div>
@@ -845,19 +842,9 @@ const FileTransferChatView = ({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="wt-fullscreen-editor"
-                        style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'var(--bg-body)',
-                            zIndex: 2000,
-                            padding: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '16px'
-                        }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ fontWeight: 900, fontSize: '14px' }}>FULL SCREEN EDIT</div>
+                        <div className="wt-fullscreen-header">
+                            <div className="wt-fullscreen-title">FULL SCREEN EDIT</div>
                             <button
                                 onClick={() => setShowFullScreen(false)}
                                 className="wt-overlay-icon-btn"
@@ -872,34 +859,20 @@ const FileTransferChatView = ({
                             onFocus={() => invoke("focus_clipboard_window").catch(console.error)}
                             onChange={e => setInput(e.target.value)}
                             placeholder="Type your message..."
-                            style={{
-                                flex: 1,
-                                width: '100%',
-                                background: 'var(--bg-input)',
-                                color: 'var(--text-primary)',
-                                border: '2px solid var(--border-dark)',
-                                padding: '16px',
-                                fontSize: '16px',
-                                fontFamily: 'var(--font-mono)',
-                                resize: 'none',
-                                outline: 'none',
-                                borderRadius: 'var(--radius-panel)'
-                            }}
+                            className="wt-fullscreen-textarea"
                             onPaste={handlePaste}
                         />
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                        <div className="wt-fullscreen-footer">
                             <button
                                 onClick={() => setShowFullScreen(false)}
                                 className="wt-btn"
-                                style={{ width: 'auto', padding: '0 20px', fontWeight: 'bold' }}
                             >
                                 CANCEL
                             </button>
                             <button
                                 onClick={send}
                                 className="wt-btn send"
-                                style={{ width: 'auto', padding: '0 24px' }}
                             >
                                 SEND
                             </button>

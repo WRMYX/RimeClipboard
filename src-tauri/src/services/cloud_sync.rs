@@ -1835,7 +1835,13 @@ where
     for attempt in 0..=WEBDAV_JSON_READ_RETRIES {
         let resp = webdav_send_with_retry(|| make_request()).await?;
 
-        if resp.status().as_u16() == missing_status {
+        let status_code = resp.status().as_u16();
+        if status_code == missing_status {
+            return Ok(None);
+        }
+        
+        // 兼容坚果云：如果父目录不存在，GET 可能返回 409 Conflict (AncestorsNotFound)
+        if status_code == 409 {
             return Ok(None);
         }
         if !resp.status().is_success() {
@@ -1989,7 +1995,7 @@ async fn mkcol_if_needed(
         return Ok(());
     }
 
-    if matches!(code, 301 | 302 | 307 | 308 | 405)
+    if matches!(code, 301 | 302 | 307 | 308 | 405 | 409)
         && webdav_collection_exists(client, cfg, relative_path).await?
     {
         let cache = WEBDAV_KNOWN_DIRS.get_or_init(|| Mutex::new(HashSet::new()));
