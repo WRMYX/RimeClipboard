@@ -29,7 +29,11 @@ const updaterPublicKey =
 if (updateEndpoint) {
   config.plugins ??= {};
   config.plugins.updater ??= {};
-  config.plugins.updater.endpoints = [updateEndpoint];
+  // Ensure the platform parameter is appended if missing
+  const finalEndpoint = updateEndpoint.includes('?') 
+    ? (updateEndpoint.includes('platform=') ? updateEndpoint : `${updateEndpoint}&platform={{target}}`)
+    : `${updateEndpoint}?platform={{target}}`;
+  config.plugins.updater.endpoints = [finalEndpoint];
 }
 
 if (updaterPublicKey) {
