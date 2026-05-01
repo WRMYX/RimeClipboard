@@ -52,19 +52,8 @@
 | **macOS** | Sierra 10.15+ <br>(Apple Silicon / Intel) | `.dmg` |
 | **Linux** | 即将支持 | 敬请期待 |
 
-[**前往 Releases 下载最新版本 →**](https://github.com/WRMYX/RimeClipboard/releases)
-
 ---
 
-## Star History
-
-<div align="center">
-  <a href="https://star-history.com/#jimuzhe/tiez-clipboard&Date">
-    <img src="https://api.star-history.com/svg?repos=jimuzhe/tiez-clipboard&type=Date" alt="Star History Chart" width="800" />
-  </a>
-</div>
-
----
 
 ## 交流与赞助
 
