@@ -1,22 +1,4 @@
-<p align="left">
-  <img src="docs/images/logo.png" width="32" vertical-align="middle" />
-  <b>Making fragmented information flow effortlessly.</b>
-</p>
-
----
-
-<div align="center">
-  <img src="docs/images/logo.png" alt="TieZ Hero Logo" width="300" />
-
-  ### **STAY FAST. STAY SYNCED.**
-
-  | STARS | VERSION | LICENSE | PLATFORM |
-  | :--- | :--- | :--- | :--- |
-  | [![Stars](https://img.shields.io/github/stars/jimuzhe/tiez-clipboard?label=STARS&style=for-the-badge&color=4CAF50)](https://github.com/jimuzhe/tiez-clipboard/stargazers) | [![Version](https://img.shields.io/github/v/release/jimuzhe/tiez-clipboard?label=VERSION&style=for-the-badge&color=2196F3)](https://github.com/jimuzhe/tiez-clipboard/releases) | [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-FF9800?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0) | [![Platform](https://img.shields.io/badge/PLATFORM-WIN%20%2F%20MAC-f44336?style=for-the-badge)](https://github.com/jimuzhe/tiez-clipboard/releases) |
-
-  [English](./README.md) | [简体中文](./README.zh-CN.md)
-</div>
-
+# RimeClipboard
 ---
 
 <div align="center">
@@ -81,7 +63,7 @@ Explore 4 elegant themes designed for every workspace and efficiency scenarios.
 | **macOS** | Sierra 10.15+ <br>(Apple Silicon / Intel) | `.dmg` |
 | **Linux** | Support Coming Soon | TBD |
 
-[**Download the Latest Release →**](https://github.com/jimuzhe/tiez-clipboard/releases)
+[**Download the Latest Release →**](https://github.com/WRMYX/RimeClipboard/releases)
 
 ---
 
@@ -99,27 +81,7 @@ Explore 4 elegant themes designed for every workspace and efficiency scenarios.
 
 If TieZ makes your life easier, consider supporting the journey.
 
-<div align="center">
-  <table style="border: none;">
-    <tr>
-      <td align="center" style="border: none;">
-        <p><strong>WeChat</strong></p>
-        <img src="docs/images/wx.jpeg" alt="WeChat" width="180" height="180" />
-      </td>
-      <td align="center" style="border: none;">
-        <p><strong>Alipay</strong></p>
-        <img src="docs/images/zfb.jpeg" alt="Alipay" width="180" height="180" />
-      </td>
-      <td align="center" style="border: none;">
-        <p><strong>QQ Group</strong></p>
-        <img src="docs/images/qq.jpeg" alt="QQ Group" width="180" height="180" />
-      </td>
-    </tr>
-  </table>
-  <br>
-  <p>Your support keeps the project active and the developer caffeinated!</p>
-  <a href="https://tiez.name666.top/zh/sponsors.html"><strong>View Sponsor List</strong></a>
-</div>
+
 
 ---
 
