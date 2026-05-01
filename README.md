@@ -49,7 +49,7 @@
 | 平台 | 运行环境要求 | 获取格式 |
 | :--- | :--- | :--- |
 | **Windows** | Windows 10/11 (x86/x64)<br>*(推荐使用 Win11)* | `.exe` / **`.zip` (便携版)** |
-| **macOS** | Sierra 10.15+ <br>(Apple Silicon / Intel) | `.dmg` |
+| **macOS** | 即将支持 | 敬请期待 |
 | **Linux** | 即将支持 | 敬请期待 |
 
 ---
